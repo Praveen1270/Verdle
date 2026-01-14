@@ -15,9 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Dodo Supabase subscription starter",
-  description:
-    "A minimal subscription starter kit built with Next.js, Supabase, and Dodo Payments.",
+  title: "Verdle – Guess Your Friend’s Secret Word",
+  description: "Create a Verdle and have your friends guess your secret word.",
 };
 
 export default function RootLayout({

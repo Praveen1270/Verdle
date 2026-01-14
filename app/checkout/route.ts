@@ -6,7 +6,7 @@ export const GET = async (req: NextRequest) => {
   const { origin } = new URL(req.url);
   const handler = Checkout({
     bearerToken: process.env.DODO_PAYMENTS_API_KEY!,
-    returnUrl: `${origin}/dashboard`,
+    returnUrl: `${origin}/profile`,
     environment: process.env
       .DODO_PAYMENTS_ENVIRONMENT as DodoPaymentsEnvironment,
     type: "static",
@@ -19,7 +19,7 @@ export const POST = async (req: NextRequest) => {
   const { origin } = new URL(req.url);
   const handler = Checkout({
     bearerToken: process.env.DODO_PAYMENTS_API_KEY!,
-    returnUrl: `${origin}/dashboard`,
+    returnUrl: `${origin}/profile`,
     environment: process.env
       .DODO_PAYMENTS_ENVIRONMENT as DodoPaymentsEnvironment,
     type: "session",

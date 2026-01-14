@@ -204,7 +204,7 @@ async function updateUserTier(props: {
 }) {
   const { error } = await supabase
     .from("users")
-    .update({ current_subscription_id: props.subscriptionId })
+    .update({ current_subscription_id: props.subscriptionId, plan: "pro" })
     .eq("dodo_customer_id", props.dodoCustomerId);
 
   if (error) throw error;
@@ -214,7 +214,7 @@ async function updateUserTier(props: {
 async function downgradeToHobbyPlan(props: { dodoCustomerId: string }) {
   const { error } = await supabase
     .from("users")
-    .update({ current_subscription_id: null })
+    .update({ current_subscription_id: null, plan: "free" })
     .eq("dodo_customer_id", props.dodoCustomerId);
 
   if (error) throw error;

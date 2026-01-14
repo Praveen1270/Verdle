@@ -36,7 +36,12 @@ export async function createUser(): ServerActionRes<string> {
   await db.insert(users).values({
     supabaseUserId: user.id,
     dodoCustomerId: dodoCustomerRes.data.customer_id,
-    currentSubscriptionId: "",
+    currentSubscriptionId: null,
+    plan: "free",
+    dailyCreateCount: 0,
+    dailyStreak: 0,
+    // store “today” so our daily-reset logic can compare dates consistently
+    lastCreateDate: new Date().toISOString().slice(0, 10),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });

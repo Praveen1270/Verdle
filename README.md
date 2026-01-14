@@ -112,6 +112,14 @@ DATABASE_URL=postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/
 DODO_PAYMENTS_API_KEY=your-dodo-api-key
 DODO_WEBHOOK_SECRET=your-webhook-secret
 DODO_PAYMENTS_ENVIRONMENT=test_mode
+
+# Verdle (game) secrets
+# Used to encrypt secret words stored in DB (do NOT rotate casually without a migration strategy)
+VERDLE_WORD_SECRET=change-me-to-a-long-random-string
+# Used to sign per-browser game state cookies (attempt counters); safe to rotate (just invalidates in-progress games)
+VERDLE_STATE_SECRET=change-me-to-a-long-random-string
+# Admin allowlist for seeding daily words (comma-separated emails)
+VERDLE_ADMIN_EMAILS=you@example.com,other-admin@example.com
 ```
 
 ### 6. Setup Database Schema

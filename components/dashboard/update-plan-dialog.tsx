@@ -3,7 +3,6 @@
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Toggle } from "@/components/ui/toggle";
 import { Label } from "@/components/ui/label";
 
 import { cn } from "@/lib/utils";
@@ -22,6 +21,25 @@ import { freePlan } from "@/lib/config/plans";
 import TailwindBadge from "@/components/ui/tailwind-badge";
 import { LoaderCircle, X } from "lucide-react";
 
+function isProPlan(plan: ProductListResponse): boolean {
+  // This starter typically has a single paid plan; treat it as "Pro".
+  // Prefer explicit naming if available.
+  return (plan.name ?? "").toLowerCase().includes("pro");
+}
+
+function proFeatures(plan: ProductListResponse): string[] {
+  // Prefer features provided via product metadata; fallback to Verdle-specific defaults.
+  try {
+    const parsed = JSON.parse(plan.metadata?.features || "[]");
+    if (Array.isArray(parsed) && parsed.every((x) => typeof x === "string") && parsed.length) {
+      return parsed as string[];
+    }
+  } catch {
+    // ignore
+  }
+  return ["Create unlimited Verdles", "Ad-free experience"];
+}
+
 export interface UpdatePlanDialogProps {
   currentPlan: SelectSubscription | null;
   triggerText: string;
@@ -39,9 +57,6 @@ export function UpdatePlanDialog({
   triggerText,
   products,
 }: UpdatePlanDialogProps) {
-  const [isYearly, setIsYearly] = useState(
-    currentPlan ? currentPlan.paymentPeriodInterval === "Year" : false
-  );
   const [selectedPlan, setSelectedPlan] = useState<string | undefined>(
     currentPlan ? currentPlan.productId : undefined
   );
@@ -76,24 +91,9 @@ export function UpdatePlanDialog({
       >
         <DialogHeader className="flex flex-row items-center justify-between ">
           <DialogTitle className="text-base font-semibold">
-            {title || "Upgrade Plan"}
+            {title || "Choose Your Plan"}
           </DialogTitle>
           <div className="flex items-center gap-2 text-sm">
-            <Toggle
-              size="sm"
-              pressed={!isYearly}
-              onPressedChange={(pressed) => setIsYearly(!pressed)}
-              className="px-3"
-            >
-              Monthly
-            </Toggle>
-            <Toggle
-              pressed={isYearly}
-              onPressedChange={(pressed) => setIsYearly(pressed)}
-              className="px-3"
-            >
-              Yearly
-            </Toggle>
             <DialogClose asChild onClick={handleDialogClose}>
               <Button variant="ghost" className="rounded-md" size="icon">
                 <X className="h-4 w-4" />
@@ -161,7 +161,7 @@ export function UpdatePlanDialog({
                   <div className="text-right flex-shrink-0">
                     <div className="text-xl font-semibold">$0</div>
                     <div className="text-xs text-muted-foreground">
-                      /{isYearly ? "year" : "month"}
+                      /month
                     </div>
                   </div>
                 </div>
@@ -195,17 +195,7 @@ export function UpdatePlanDialog({
                     if (plan.price_detail?.type === "one_time_price") {
                       return false;
                     }
-
-                    if (isYearly) {
-                      return (
-                        plan.price_detail?.payment_frequency_interval === "Year"
-                      );
-                    } else {
-                      return (
-                        plan.price_detail?.payment_frequency_interval ===
-                        "Month"
-                      );
-                    }
+                    return plan.price_detail?.payment_frequency_interval === "Month";
                   })
                   .sort(
                     (a, b) => {
@@ -242,7 +232,7 @@ export function UpdatePlanDialog({
                                 htmlFor={plan.product_id}
                                 className="font-medium cursor-pointer"
                               >
-                                {plan.name}
+                                {isProPlan(plan) ? "Pro" : plan.name}
                               </Label>
                               {plan.description && (
                                 <TailwindBadge
@@ -250,8 +240,7 @@ export function UpdatePlanDialog({
                                   className="flex-shrink-0"
                                 >
                                   {
-                                    JSON.parse(plan.metadata?.features || "[]")
-                                      .length
+                                    proFeatures(plan).length
                                   }{" "}
                                   Features
                                 </TailwindBadge>
@@ -260,13 +249,10 @@ export function UpdatePlanDialog({
                             <p className="text-xs text-muted-foreground mt-1">
                               {plan.description}
                             </p>
-                            {JSON.parse(plan.metadata?.features || "[]")
-                              .length > 0 && (
+                            {proFeatures(plan).length > 0 && (
                               <div className="pt-3">
                                 <div className="flex flex-wrap gap-2">
-                                  {JSON.parse(
-                                    plan.metadata?.features || "[]"
-                                  ).map(
+                                  {proFeatures(plan).map(
                                     (feature: string, featureIndex: number) => (
                                       <div
                                         key={featureIndex}
@@ -289,7 +275,7 @@ export function UpdatePlanDialog({
                             ${Number(plan.price) / 100}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            /{isYearly ? "year" : "month"}
+                            /month
                           </div>
                         </div>
                       </div>

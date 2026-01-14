@@ -1,0 +1,9 @@
+{
+  // Tailwind v4 uses PostCSS directives (e.g. @theme, @custom-variant, @apply)
+  // that the built-in CSS language service doesn't recognize.
+  // Ignore "unknown at rule" warnings for this workspace.
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore",
+  "less.lint.unknownAtRules": "ignore"
+}
+
