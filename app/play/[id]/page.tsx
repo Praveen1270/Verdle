@@ -1,11 +1,9 @@
-import { notFound } from "next/navigation";
-import { cookies } from "next/headers";
+import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { db } from "@/lib/drizzle/client";
 import { verdles, verdleAttempts } from "@/lib/drizzle/schema";
 import { and, eq } from "drizzle-orm";
 import { VerdleGame } from "@/components/verdle/verdle-game";
-import { ANON_SESSION_COOKIE } from "@/lib/verdle/cookies";
 
 export default async function PlayVerdlePage(props: {
   params: Promise<{ id: string }>;
@@ -22,26 +20,17 @@ export default async function PlayVerdlePage(props: {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const cookieStore = await cookies();
-  // Note: Server Components can read cookies but can't set them.
-  // The anon session cookie is created/managed by the guess route handler on first guess.
-  const sessionId = cookieStore.get(ANON_SESSION_COOKIE)?.value;
+  // Require sign-in before playing shared games.
+  if (!user) {
+    redirect(`/login?next=${encodeURIComponent(`/play/${id}`)}`);
+  }
 
-  const existing = user
-    ? await db.query.verdleAttempts.findFirst({
-        where: and(
-          eq(verdleAttempts.verdleId, v.id),
-          eq(verdleAttempts.playerUserId, user.id)
-        ),
-      })
-    : sessionId
-    ? await db.query.verdleAttempts.findFirst({
-        where: and(
-          eq(verdleAttempts.verdleId, v.id),
-          eq(verdleAttempts.playerSessionId, sessionId)
-        ),
-      })
-    : null;
+  const existing = await db.query.verdleAttempts.findFirst({
+    where: and(
+      eq(verdleAttempts.verdleId, v.id),
+      eq(verdleAttempts.playerUserId, user.id)
+    ),
+  });
 
   return (
     <VerdleGame

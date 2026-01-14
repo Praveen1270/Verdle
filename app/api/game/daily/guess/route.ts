@@ -45,8 +45,29 @@ export async function POST(req: Request) {
 
     // Hard stop if already completed in this browser.
     if (existingState.c) {
+      let answer: string | undefined = undefined;
+      if (existingState.w === false) {
+        // Reveal the word after a loss.
+        let daily = await db.query.dailyWords.findFirst({
+          where: eq(dailyWords.date, date),
+        });
+        if (!daily) {
+          await ensureDailyWordsSeeded(date, 50);
+          daily = await db.query.dailyWords.findFirst({
+            where: eq(dailyWords.date, date),
+          });
+        }
+        if (daily) {
+          answer = decryptWord(daily.wordCiphertext).toUpperCase();
+        }
+      }
       return NextResponse.json(
-        { error: "Already completed", completed: true, won: existingState.w ?? false },
+        {
+          error: "Already completed",
+          completed: true,
+          won: existingState.w ?? false,
+          ...(answer ? { answer } : {}),
+        },
         { status: 409 }
       );
     }
@@ -59,9 +80,29 @@ export async function POST(req: Request) {
       where: and(eq(dailyAttempts.date, date), eq(dailyAttempts.userId, user.id)),
     });
     if (already) {
+      let answer: string | undefined = undefined;
+      if (!already.won) {
+        let daily = await db.query.dailyWords.findFirst({
+          where: eq(dailyWords.date, date),
+        });
+        if (!daily) {
+          await ensureDailyWordsSeeded(date, 50);
+          daily = await db.query.dailyWords.findFirst({
+            where: eq(dailyWords.date, date),
+          });
+        }
+        if (daily) {
+          answer = decryptWord(daily.wordCiphertext).toUpperCase();
+        }
+      }
       // Mark completed in cookie as well to keep UI consistent.
       const res = NextResponse.json(
-        { error: "Already completed today", completed: true, won: already.won },
+        {
+          error: "Already completed today",
+          completed: true,
+          won: already.won,
+          ...(answer ? { answer } : {}),
+        },
         { status: 409 }
       );
       res.cookies.set(
@@ -117,6 +158,7 @@ export async function POST(req: Request) {
       attemptNumber,
       completed,
       won,
+      ...(completed && !won ? { answer: secret.toUpperCase() } : {}),
       maxAttempts: VERDLE_MAX_ATTEMPTS,
     });
     res.cookies.set(stateName, writeState(updatedState), {

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import crypto from "crypto";
 import { db } from "@/lib/drizzle/client";
 import { verdles, verdleAttempts } from "@/lib/drizzle/schema";
 import { createClient } from "@/lib/supabase/server";
@@ -11,7 +10,6 @@ import {
 import { decryptWord } from "@/lib/verdle/crypto";
 import { evaluateGuess } from "@/lib/verdle/evaluate";
 import {
-  ANON_SESSION_COOKIE,
   gameStateCookieName,
   initialState,
   nextState,
@@ -27,11 +25,6 @@ function isValidGuess(guess: unknown): guess is string {
     guess.length === VERDLE_WORD_LENGTH &&
     /^[a-zA-Z]+$/.test(guess)
   );
-}
-
-function ensureAnonSession(existing: string | undefined): { id: string; created: boolean } {
-  if (existing && existing.length >= 16) return { id: existing, created: false };
-  return { id: crypto.randomUUID(), created: true };
 }
 
 export async function POST(
@@ -58,7 +51,14 @@ export async function POST(
 
   if (existingState.c) {
     return NextResponse.json(
-      { error: "Already completed", completed: true, won: existingState.w ?? false },
+      {
+        error: "Already completed",
+        completed: true,
+        won: existingState.w ?? false,
+        ...(existingState.w === false
+          ? { answer: decryptWord(v.wordCiphertext).toUpperCase() }
+          : {}),
+      },
       { status: 409 }
     );
   }
@@ -66,55 +66,39 @@ export async function POST(
     return NextResponse.json({ error: "No attempts remaining" }, { status: 400 });
   }
 
-  // Determine player identity (auth or anon session cookie)
+  // Require sign-in for shared games.
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { id: sessionId, created } = ensureAnonSession(cookieStore.get(ANON_SESSION_COOKIE)?.value);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   // If already completed in DB, mark cookie and return
-  if (user) {
-    const already = await db.query.verdleAttempts.findFirst({
-      where: and(eq(verdleAttempts.verdleId, v.id), eq(verdleAttempts.playerUserId, user.id)),
-    });
-    if (already) {
-      const res = NextResponse.json(
-        { error: "Already completed", completed: true, won: already.won },
-        { status: 409 }
-      );
-      res.cookies.set(
-        stateName,
-        writeState(nextState(existingState, { c: true, w: already.won })),
-        { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30 }
-      );
-      return res;
-    }
-  } else {
-    const already = await db.query.verdleAttempts.findFirst({
-      where: and(eq(verdleAttempts.verdleId, v.id), eq(verdleAttempts.playerSessionId, sessionId)),
-    });
-    if (already) {
-      const res = NextResponse.json(
-        { error: "Already completed", completed: true, won: already.won },
-        { status: 409 }
-      );
-      res.cookies.set(
-        stateName,
-        writeState(nextState(existingState, { c: true, w: already.won })),
-        { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30 }
-      );
-      if (created) {
-        res.cookies.set(ANON_SESSION_COOKIE, sessionId, {
-          httpOnly: true,
-          sameSite: "lax",
-          path: "/",
-          maxAge: 60 * 60 * 24 * 365,
-        });
-      }
-      return res;
-    }
+  const already = await db.query.verdleAttempts.findFirst({
+    where: and(
+      eq(verdleAttempts.verdleId, v.id),
+      eq(verdleAttempts.playerUserId, user.id)
+    ),
+  });
+  if (already) {
+    const res = NextResponse.json(
+      {
+        error: "Already completed",
+        completed: true,
+        won: already.won,
+        ...(!already.won ? { answer: decryptWord(v.wordCiphertext).toUpperCase() } : {}),
+      },
+      { status: 409 }
+    );
+    res.cookies.set(
+      stateName,
+      writeState(nextState(existingState, { c: true, w: already.won })),
+      { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30 }
+    );
+    return res;
   }
 
   const secret = decryptWord(v.wordCiphertext).toLowerCase();
@@ -137,6 +121,7 @@ export async function POST(
     attemptNumber,
     completed,
     won,
+    ...(completed && !won ? { answer: secret.toUpperCase() } : {}),
     maxAttempts: VERDLE_MAX_ATTEMPTS,
   });
 
@@ -146,27 +131,19 @@ export async function POST(
     path: "/",
     maxAge: 60 * 60 * 24 * 30,
   });
-  if (created) {
-    res.cookies.set(ANON_SESSION_COOKIE, sessionId, {
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 365,
-    });
-  }
 
   if (completed) {
     await db
       .insert(verdleAttempts)
       .values({
         verdleId: v.id,
-        playerUserId: user?.id ?? null,
-        playerSessionId: user ? null : sessionId,
+        playerUserId: user.id,
+        playerSessionId: null,
         attemptsCount: attemptNumber,
         won,
       })
       .onConflictDoNothing({
-        target: user ? [verdleAttempts.verdleId, verdleAttempts.playerUserId] : [verdleAttempts.verdleId, verdleAttempts.playerSessionId],
+        target: [verdleAttempts.verdleId, verdleAttempts.playerUserId],
       });
   }
 

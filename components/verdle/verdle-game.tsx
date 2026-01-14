@@ -14,9 +14,10 @@ type GuessResponse =
       attemptNumber: number;
       completed: boolean;
       won: boolean;
+      answer?: string;
       maxAttempts: number;
     }
-  | { error: string; completed?: boolean; won?: boolean };
+  | { error: string; completed?: boolean; won?: boolean; answer?: string };
 
 const KEY_ROWS = [
   ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
@@ -65,6 +66,7 @@ export function VerdleGame(props: {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completed, setCompleted] = useState(!!props.initialCompleted);
   const [won, setWon] = useState(!!props.initialWon);
+  const [answer, setAnswer] = useState<string | null>(null);
   const [keyState, setKeyState] = useState<Record<string, TileState>>({});
 
   const canType = !completed && !isSubmitting;
@@ -106,6 +108,9 @@ export function VerdleGame(props: {
             if (res.status === 409 && data && (data as any).completed) {
               setCompleted(true);
               setWon(!!(data as any).won);
+              if (!(data as any).won && typeof (data as any).answer === "string") {
+                setAnswer((data as any).answer);
+              }
               toast.info("Already completed");
               return;
             }
@@ -143,6 +148,9 @@ export function VerdleGame(props: {
           if (data.completed) {
             setCompleted(true);
             setWon(data.won);
+            if (!data.won && typeof (data as any).answer === "string") {
+              setAnswer((data as any).answer);
+            }
             toast.success(data.won ? "You got it!" : "Out of attempts");
           }
         } finally {
@@ -192,6 +200,11 @@ export function VerdleGame(props: {
           {completed && (
             <p className="text-sm text-white/70">
               {won ? "Completed (win)" : "Completed (loss)"}
+            </p>
+          )}
+          {completed && !won && answer && (
+            <p className="text-sm text-white/80">
+              The word was <span className="font-semibold">{answer}</span>
             </p>
           )}
         </div>
