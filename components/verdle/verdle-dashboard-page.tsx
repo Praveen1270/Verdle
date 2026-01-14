@@ -9,7 +9,7 @@ export function VerdleDashboardPage(props: { data: VerdleDashboardData }) {
   return (
     <div className="min-h-screen px-4 py-8 max-w-5xl mx-auto">
       <div className="flex items-center justify-between gap-3 mb-6">
-        <div className="font-semibold text-xl">Verdle</div>
+        <div className="font-semibold text-xl">crackmyword</div>
         <div className="flex gap-2">
           <Button asChild variant="secondary">
             <Link href="/daily">Daily</Link>

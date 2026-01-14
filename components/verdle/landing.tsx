@@ -13,7 +13,7 @@ export function VerdleLanding() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-xl text-center space-y-6">
         <div className="space-y-2">
-          <h1 className="text-4xl sm:text-5xl font-semibold">Verdle</h1>
+          <h1 className="text-4xl sm:text-5xl font-semibold">crackmyword</h1>
           <p className="text-muted-foreground">
             Have your friend guess your secret word!
           </p>

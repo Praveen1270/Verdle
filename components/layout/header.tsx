@@ -6,14 +6,14 @@ export default function Header() {
     <div className="flex items-center justify-center gap-3 text-center">
       <Image
         src="/assets/verdle-icon.png"
-        alt="Verdle"
+        alt="crackmyword"
         width={44}
         height={44}
         priority
       />
       <div className="text-left">
         <div className="text-xl sm:text-2xl font-semibold tracking-tight text-white">
-          Verdle – Guess Your Friend’s Secret Word
+          crackmyword – Guess Your Friend’s Secret Word
         </div>
       </div>
     </div>

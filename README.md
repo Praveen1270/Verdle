@@ -113,7 +113,7 @@ DODO_PAYMENTS_API_KEY=your-dodo-api-key
 DODO_WEBHOOK_SECRET=your-webhook-secret
 DODO_PAYMENTS_ENVIRONMENT=test_mode
 
-# Verdle (game) secrets
+# crackmyword (game) secrets
 # Used to encrypt secret words stored in DB (do NOT rotate casually without a migration strategy)
 VERDLE_WORD_SECRET=change-me-to-a-long-random-string
 # Used to sign per-browser game state cookies (attempt counters); safe to rotate (just invalidates in-progress games)

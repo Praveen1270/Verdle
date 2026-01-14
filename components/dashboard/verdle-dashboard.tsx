@@ -57,7 +57,7 @@ export function VerdleDashboard(props: {
         toast.error(res.error);
         return;
       }
-      toast.success("Verdle created!");
+      toast.success("crackmyword created!");
       setWord("");
       const url = `${window.location.origin}${res.data.shareUrl}`;
       await navigator.clipboard.writeText(url);
@@ -73,7 +73,7 @@ export function VerdleDashboard(props: {
       <div className="grid gap-4">
         <Card className="shadow-lg">
           <CardHeader className="px-4 sm:px-6">
-            <CardTitle className="text-lg sm:text-xl">Verdle</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">crackmyword</CardTitle>
             <CardDescription className="text-sm sm:text-base">
               Create a 5-letter secret word and share the link with friends.
             </CardDescription>
@@ -104,12 +104,12 @@ export function VerdleDashboard(props: {
               <div className="rounded-xl border p-4 bg-muted/20">
                 <div className="font-medium">Creation limit reached</div>
                 <div className="text-sm text-muted-foreground mt-1">
-                  Free plan allows 1 Verdle per day. Next creation available in{" "}
+                  Free plan allows 1 crackmyword per day. Next creation available in{" "}
                   <span className="font-semibold">{countdown ?? "…"}</span>.
                 </div>
                 <div className="flex flex-wrap gap-2 mt-3">
                   <Button asChild variant="secondary">
-                    <Link href="/daily">Play Daily Verdle</Link>
+                    <Link href="/daily">Play Daily crackmyword</Link>
                   </Button>
                   <Button onClick={props.onUpgradeClick}>Upgrade for Unlimited</Button>
                 </div>
@@ -136,10 +136,10 @@ export function VerdleDashboard(props: {
                     onClick={onCreate}
                     disabled={isCreating || word.length !== 5}
                   >
-                    {isCreating ? "Creating…" : "Create Verdle"}
+                    {isCreating ? "Creating…" : "Create crackmyword"}
                   </Button>
                   <Button asChild className="h-12" variant="secondary">
-                    <Link href="/daily">Daily Verdle</Link>
+                    <Link href="/daily">Daily crackmyword</Link>
                   </Button>
                 </div>
                 <div className="text-xs text-muted-foreground mt-2">
@@ -153,9 +153,9 @@ export function VerdleDashboard(props: {
 
         <Card className="shadow-lg">
           <CardHeader className="px-4 sm:px-6">
-            <CardTitle className="text-lg sm:text-xl">Verdle History</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">crackmyword History</CardTitle>
             <CardDescription className="text-sm sm:text-base">
-              Your created Verdles and how many friends played.
+              Your created crackmywords and how many friends played.
             </CardDescription>
           </CardHeader>
           <CardContent className="px-4 sm:px-6 space-y-3">

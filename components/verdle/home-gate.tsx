@@ -40,7 +40,7 @@ export function VerdleHomeGate(props: { data: VerdleDashboardData }) {
       }
       const url = `${window.location.origin}${res.data.shareUrl}`;
       await navigator.clipboard.writeText(url);
-      toast.success("Verdle created — link copied!");
+      toast.success("crackmyword created — link copied!");
       window.location.href = "/dashboard";
     } finally {
       setIsCreating(false);
@@ -61,7 +61,7 @@ export function VerdleHomeGate(props: { data: VerdleDashboardData }) {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-xl text-center space-y-6">
         <div className="space-y-2">
-          <h1 className="text-4xl sm:text-5xl font-semibold">Verdle</h1>
+          <h1 className="text-4xl sm:text-5xl font-semibold">crackmyword</h1>
           <p className="text-muted-foreground">
             Have your friend guess your secret word!
           </p>
@@ -70,7 +70,7 @@ export function VerdleHomeGate(props: { data: VerdleDashboardData }) {
         {props.data.createLocked ? (
           <div className="rounded-xl border p-4 sm:p-5 space-y-4">
             <div className="text-base sm:text-lg font-semibold">
-              You can create your next Verdle in:
+              You can create your next crackmyword in:
             </div>
             <div className="text-3xl sm:text-4xl font-bold">{countdown ?? "…"}</div>
             <div className="text-sm text-muted-foreground">
@@ -79,7 +79,7 @@ export function VerdleHomeGate(props: { data: VerdleDashboardData }) {
             </div>
             <div className="flex flex-col gap-2">
               <Button asChild className="h-12">
-                <Link href="/daily">Play Daily Verdle</Link>
+                <Link href="/daily">Play Daily crackmyword</Link>
               </Button>
               <Button asChild variant="secondary" className="h-12">
                 <Link href="/profile">Subscribe for Unlimited Verdles</Link>

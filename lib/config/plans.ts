@@ -4,7 +4,7 @@ export const freePlan = {
   price: 0,
   currency: "USD",
   features: [
-    "Create 1 Verdle a day",
+    "Create 1 crackmyword a day",
     "May include ads",
   ],
 };

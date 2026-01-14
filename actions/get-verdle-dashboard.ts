@@ -97,7 +97,7 @@ export async function getVerdleDashboard(): ServerActionRes<VerdleDashboardData>
     console.error("getVerdleDashboard failed:", e);
     return {
       success: false,
-      error: e instanceof Error ? e.message : "Failed to load Verdle dashboard",
+      error: e instanceof Error ? e.message : "Failed to load crackmyword dashboard",
     };
   }
 }

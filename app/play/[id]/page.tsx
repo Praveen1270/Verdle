@@ -34,7 +34,7 @@ export default async function PlayVerdlePage(props: {
 
   return (
     <VerdleGame
-      title="Verdle"
+      title="crackmyword"
       description="Guess your friend’s secret word!"
       apiUrl={`/api/game/verdle/${v.id}/guess`}
       initialCompleted={!!existing}

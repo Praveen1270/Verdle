@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Verdle – Guess Your Friend’s Secret Word",
-  description: "Create a Verdle and have your friends guess your secret word.",
+  title: "crackmyword – Guess Your Friend’s Secret Word",
+  description: "Create a crackmyword and have your friends guess your secret word.",
 };
 
 export default function RootLayout({

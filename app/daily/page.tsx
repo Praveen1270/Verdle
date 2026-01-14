@@ -23,7 +23,7 @@ export default async function DailyPage() {
 
   return (
     <VerdleGame
-      title="Solve the Daily Verdle!"
+      title="Solve the Daily crackmyword!"
       description={formatUtcWeekdayMonthDay(date)}
       apiUrl="/api/game/daily/guess"
       initialCompleted={!!existing}

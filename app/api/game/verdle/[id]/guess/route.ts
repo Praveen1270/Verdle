@@ -42,7 +42,7 @@ export async function POST(
     where: eq(verdles.id, id),
   });
   if (!v) {
-    return NextResponse.json({ error: "Verdle not found" }, { status: 404 });
+    return NextResponse.json({ error: "crackmyword not found" }, { status: 404 });
   }
 
   const cookieStore = await cookies();

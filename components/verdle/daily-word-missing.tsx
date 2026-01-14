@@ -42,7 +42,7 @@ export function DailyWordMissing(props: {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="max-w-lg text-center space-y-3">
         <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">Daily Verdle</h1>
+          <h1 className="text-2xl font-semibold">Daily crackmyword</h1>
           <p className="text-muted-foreground">
             No daily word is configured for today ({props.date}). Seed a row into{" "}
             <code className="px-1 py-0.5 rounded bg-muted">daily_words</code>.
